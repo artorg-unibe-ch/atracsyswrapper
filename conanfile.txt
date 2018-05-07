@@ -1,0 +1,11 @@
+
+[requires]
+OpenIGTLink/3.0@ipa/testing
+
+[generators]
+cmake
+
+[options]
+
+[imports]
+bin, *.dll -> ./bin @ root_package=OpenIGTLink
