@@ -3,6 +3,7 @@
 //
 
 #include "lib/atracsyswrapper.h"
+#include "connectionlistener.h"
 #include <thread>
 #include <chrono>
 
@@ -10,6 +11,7 @@
 #include <igtl/igtlServerSocket.h>
 #include <igtl/igtlTrackingDataMessage.h>
 #include <igtl/igtlMessageBase.h>
+#include <conio.h>
 
 using namespace std::chrono_literals;
 
@@ -34,29 +36,17 @@ int main(int argc, char **argv) {
     AtracsysWrapper wrapper;
     wrapper.init();
 
-	igtl::ServerSocket::Pointer serverSocket;
-	serverSocket = igtl::ServerSocket::New();
-	int r = serverSocket->CreateServer(22222);
-
-	igtl::Socket::Pointer socket;
+    ConnectionListener cl;
+    cl.init();
 
     wrapper.addGeometry("geometry/geometry002.ini", "Pointer");
 	wrapper.addGeometry("geometry/geometry003.ini", "Ultrasound");
     wrapper.startTracking();
 
-	socket = serverSocket->WaitForConnection(10000);
-	if (!socket.IsNotNull()) {
-		std::cout << "No connection" << std::endl;
-		return 0;
-	}	
-
-	for (int i = 0; i < 1000; ++i) {
-		
-		std::cout << "connected" << std::endl;
+	bool run = true;
+	while (run) {
 		wrapper.getMarkerPositions();
 		auto markers = wrapper.getMarkers();
-
-		//printMarkers(markers);
 
 		igtl::TrackingDataMessage::Pointer transMsg;
 		transMsg = igtl::TrackingDataMessage::New();
@@ -70,7 +60,6 @@ int main(int argc, char **argv) {
 				for (int j = 0; j < 4; ++j) {
 					matrix[i][j] = entry.second.getTransform()[i][j];
 				}
-				std::cout << std::endl;
 			}
 			
 			element->SetMatrix(matrix);
@@ -79,11 +68,15 @@ int main(int argc, char **argv) {
 
 		transMsg->SetTimeStamp(igtl::TimeStamp::New());
 		transMsg->Pack();
-		//transMsg->Print(std::cout);
-		socket->Send(transMsg->GetPackPointer(), transMsg->GetPackSize());
-
-		std::this_thread::sleep_for(50ms);
+		cl.send(transMsg);
+		std::this_thread::sleep_for(20ms);
+		if(_kbhit()) {
+			char key = _getch();
+			if(key == 'q') {
+				run = false;
+			}
+		}
 	}
-	serverSocket->CloseSocket();
+
 	wrapper.stopTrackking();
 }

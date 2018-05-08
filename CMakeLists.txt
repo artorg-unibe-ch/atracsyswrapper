@@ -34,7 +34,7 @@ add_library(atracsyswrapper
         lib/helpers_windows.cpp)
 
 add_executable(wrappertest
-        wrappertest.cpp)
+        wrappertest.cpp connectionlistener.cpp connectionlistener.h)
 target_link_libraries(wrappertest atracsyswrapper)
 
 configure_file(${ATRACSYS_BIN_DIR}/fusionTrack64.dll ${CMAKE_BINARY_DIR}/fusionTrack64.dll COPYONLY)
