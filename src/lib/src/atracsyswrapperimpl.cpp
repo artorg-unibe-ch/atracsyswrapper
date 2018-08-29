@@ -2,17 +2,18 @@
 // Created by Iwan Paolucci on 30/04/2018.
 //
 
-#include "atracsyswrapper.h"
+#include "atracsyswrapperimpl.h"
 #include "helpers.hpp"
 #include "geometryHelper.hpp"
-#include "atracsysmarker.h"
+#include "atracsyswrapper/atracsysmarker.h"
 
-AtracsysWrapper::AtracsysWrapper()
-        : library(nullptr),
+AtracsysWrapperImpl::AtracsysWrapperImpl()
+        : AtracsysWrapper(),
+        library(nullptr),
           device(nullptr) {
 }
 
-AtracsysWrapper::~AtracsysWrapper() {
+AtracsysWrapperImpl::~AtracsysWrapperImpl() {
 	ftkDeleteFrame(frame);
 
     if (FTK_OK != ftkClose(&library)) {
@@ -20,7 +21,7 @@ AtracsysWrapper::~AtracsysWrapper() {
     }
 }
 
-bool AtracsysWrapper::init() {
+bool AtracsysWrapperImpl::init() {
     library = ftkInit();
     if (library == nullptr) {
         return false;
@@ -35,7 +36,7 @@ bool AtracsysWrapper::init() {
     return true;
 }
 
-bool AtracsysWrapper::addGeometry(const std::string &filename, const std::string& geometryId) {
+bool AtracsysWrapperImpl::addGeometry(const std::string &filename, const std::string& geometryId) {
     ftkGeometry geometry{};
     bool success = false;
     switch (loadGeometry(library, device->getSerialNumber(), filename, geometry)) {
@@ -56,7 +57,7 @@ bool AtracsysWrapper::addGeometry(const std::string &filename, const std::string
     return success;
 }
 
-bool AtracsysWrapper::startTracking() {
+bool AtracsysWrapperImpl::startTracking() {
     frame = ftkCreateFrame();
     if ( frame == nullptr)
     {
@@ -73,11 +74,11 @@ bool AtracsysWrapper::startTracking() {
     return true;
 }
 
-bool AtracsysWrapper::stopTrackking() {
+bool AtracsysWrapperImpl::stopTrackking() {
     return false;
 }
 
-void AtracsysWrapper::getMarkerPositions() {
+void AtracsysWrapperImpl::getMarkerPositions() {
     ftkError err = ftkGetLastFrame(library, device->getSerialNumber(), frame, 100u );
     if ( err != FTK_OK )
     {
@@ -97,7 +98,7 @@ void AtracsysWrapper::getMarkerPositions() {
         return;
     }
 
-    for ( int i = 0u; i < frame->markersCount; ++i )
+    for ( uint32 i = 0; i < frame->markersCount; ++i )
     {
         ftkMarker marker = frame->markers[i];
 		AtracsysMarker& atrMarker = markers[marker.geometryId];
@@ -105,10 +106,10 @@ void AtracsysWrapper::getMarkerPositions() {
         atrMarker.setRegistrationError(marker.registrationErrorMM);
 		AtracsysMarker::Transform transform = { { { 1, 0, 0, 0 },{ 0, 1, 0, 0 },{ 0, 0, 1, 0 },{ 0, 0, 0, 1 } } };
 
-		for(int i = 0; i < 3; ++i) {
-			transform[i][0] = marker.rotation[i][0];
-			transform[i][1] = marker.rotation[i][1];
-			transform[i][2] = marker.rotation[i][2];
+		for(int k = 0; k < 3; ++k) {
+			transform[k][0] = marker.rotation[k][0];
+			transform[k][1] = marker.rotation[k][1];
+			transform[k][2] = marker.rotation[k][2];
 		}
 
 		transform[0][3] = marker.translationMM[0];
@@ -118,7 +119,7 @@ void AtracsysWrapper::getMarkerPositions() {
     }
 }
 
-const std::map<size_t, AtracsysMarker>& AtracsysWrapper::getMarkers() const
+const std::map<size_t, AtracsysMarker>& AtracsysWrapperImpl::getMarkers() const
 {
 	return markers;
 }

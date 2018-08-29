@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <ftkTypes.h>
-#include <cstddef>
 #include <array>
 
 class AtracsysMarker {

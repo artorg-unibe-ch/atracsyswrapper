@@ -8,24 +8,24 @@
 #include <string>
 #include <ftkInterface.h>
 #include <map>
-#include "helpers.hpp"
+#include <atracsyswrapper/atracsyswrapper.h>
 #include "atracsysdevice.h"
-#include "atracsysmarker.h"
+#include "atracsyswrapper/atracsysmarker.h"
 
-class AtracsysWrapper {
+class AtracsysWrapperImpl : public AtracsysWrapper {
 public:
-    AtracsysWrapper();
+    AtracsysWrapperImpl();
 
-    virtual ~AtracsysWrapper();
+    ~AtracsysWrapperImpl() override;
 
-    bool init();
+    bool init() override;
 
-    bool addGeometry(const std::string &filename, const std::string& geometryId);
+    bool addGeometry(const std::string &filename, const std::string& geometryId) override;
 
-    bool startTracking();
-    bool stopTrackking();
+    bool startTracking() override;
+    bool stopTrackking() override;
 
-    void getMarkerPositions();
+    void getMarkerPositions() override;
 
 	const std::map<size_t, AtracsysMarker>& getMarkers() const;
 private:

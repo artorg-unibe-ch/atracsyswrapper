@@ -31,8 +31,8 @@
  */
 // ============================================================================
 
-#include "lib/helpers.hpp"
-#include "lib/geometryHelper.hpp"
+#include "../lib/src/helpers.hpp"
+#include "../lib/src/geometryHelper.hpp"
 
 #include <iomanip>
 #include <iostream>
