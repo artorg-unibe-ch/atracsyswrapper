@@ -3,9 +3,9 @@ from conans import ConanFile, CMake
 class AtracsysWrapperConan(ConanFile):
     name = "AtracsysWrapper"
     version = "0.1"
-    license = ""
+    license = "MIT"
     url = ""
-    description = "<Description of Hello here>"
+    description = "Wrapper for the atracsys spry track api"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
     default_options = "shared=True"
